@@ -40,7 +40,9 @@ jobs:
 
             - name: List Images 
               run: docker images
-            
-    # - docker push
+
+            # - docker push
+            - name: Push Docker image
+              run: docker push talel12/backend-session14
 
     # Deployment
