@@ -33,7 +33,7 @@ jobs:
 
             # - Tag docker Image
             - name: Tag Docker Image with version
-              run: docker tag talel12/backend-session14 talel12/backend-session14:v2
+              run: docker tag talel12/backend-session14 talel12/backend-session14:v${{ github.run_number }}
 
             # - docker login
             - name: Login to Docker Hub
@@ -51,7 +51,7 @@ jobs:
 
             # - docker push version image
             - name: push version image
-              run: docker push talel12/backend-session14:v2
+              run: docker push talel12/backend-session14:v${{ github.run_number }}
             
 
     # Deployment
