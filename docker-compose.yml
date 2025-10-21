@@ -16,6 +16,10 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: admin
+    volumes:
+      - ./backup:/data/db
+    networks:
+      - mongodb-volume
 
   mongo-express:
     image: mongo-express
@@ -27,3 +31,12 @@ services:
       ME_CONFIG_BASICAUTH_ENABLED: true
       ME_CONFIG_BASICAUTH_USERNAME: mongoexpressuser
       ME_CONFIG_BASICAUTH_PASSWORD: mongoexpresspass
+    networks:
+      - mongodb-volume
+
+volumes:
+  database-volume:
+
+
+networks:
+  mongodb-volume:
