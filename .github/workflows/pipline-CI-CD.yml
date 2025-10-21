@@ -66,6 +66,6 @@ jobs:
                 password: ${{ secrets.VPS_PASSWORD }}
                 script: |
                     cd /home/user/devops-script/backend/dev
-                    sudo docker compose pull backend-api
+                    sudo docker pull talel12/backend-session14 
                     sudo docker compose down backend-api
                     sudo docker compose up -d 
