@@ -30,7 +30,7 @@ async function connectDB() {
   }
 }
 
-await connectDB();
+connectDB();
 
 // Routes
 app.get("/", (req, res) => {
