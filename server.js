@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import cors from "cors"; 
+import cors from "cors";
 import productRoutes from "./routes/product.route.js";
 
 dotenv.config();
@@ -30,7 +30,9 @@ async function connectDB() {
   }
 }
 
-connectDB();
+(async () => {
+  await connectDB();
+})();
 
 // Routes
 app.get("/", (req, res) => {
