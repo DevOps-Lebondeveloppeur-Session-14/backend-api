@@ -5,6 +5,12 @@ on:
         branches:
             - main
 
+env:
+  BUILD_NUMBER: ${{ github.run_number }}
+  IMAGE_NAME: ${{ vars.DOCKERHUB_USERNAME }}/api-session14
+  PROJECT_PATH: /home/user/devops-script/backend/dev # Docker compose file
+  DOCKER_SERVICE: backend-api
+
 jobs:
     # Unit Test
     Unit_Test:
@@ -29,11 +35,11 @@ jobs:
 
             # - build image
             - name: Build Docker Image
-              run: docker build -t talel12/api-session14 .
+              run: docker build -t ${{ env.IMAGE_NAME }} .
 
             # - Tag docker Image
             - name: Tag Docker Image with version
-              run: docker tag talel12/api-session14 talel12/api-session14:v${{ github.run_number }}
+              run: docker tag ${{ env.IMAGE_NAME }} ${{ env.IMAGE_NAME }}:v${{ env.BUILD_NUMBER }}
 
             # - docker login
             - name: Login to Docker Hub
@@ -47,13 +53,12 @@ jobs:
 
             # - docker push latest image
             - name: Push Docker image
-              run: docker push talel12/api-session14
+              run: docker push ${{ env.IMAGE_NAME }}
 
             # - docker push version image
             - name: push version image
-              run: docker push talel12/api-session14:v${{ github.run_number }}
+              run: docker push ${{ env.IMAGE_NAME }}:v${{ env.BUILD_NUMBER }}
             
-
     Deployment:
         runs-on: ubuntu-latest
         needs: Build_And_Push
@@ -65,7 +70,7 @@ jobs:
                 username: ${{ secrets.VPS_USERNAME }}
                 password: ${{ secrets.VPS_PASSWORD }}
                 script: |
-                    cd /home/user/devops-script/backend/dev
-                    sudo docker compose pull backend-api
-                    sudo docker compose down backend-api
+                    cd ${{ env.PROJECT_PATH }}
+                    sudo docker compose pull ${{ env.DOCKER_SERVICE }}
+                    sudo docker compose down ${{ env.DOCKER_SERVICE }}
                     sudo docker compose up -d 
