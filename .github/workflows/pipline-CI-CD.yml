@@ -58,7 +58,7 @@ jobs:
 
         - name: Run Trivy Docker image vulnerability scan
           run: |
-            trivy fs  .
+            trivy fs --exit-code 1 --severity CRITICAL .
 
 
 
