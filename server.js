@@ -16,6 +16,7 @@ app.use(cors()); // Enable CORS for all routes
 // Database Connection
 async function connectDB() {
   if (process.env.NODE_ENV === "test") {
+    // MONGO_URI=mongodb+srv://hello:z6zh1uoYDogObtYM@cluster0.mq57s.mongodb.net/book-store?authSource=admin
     // Skip MongoDB connection if in test environment
     console.log("Skipping MongoDB connection in test environment.");
     return;
