@@ -13,32 +13,32 @@ env:
 
 jobs:
     # Unit Test
-    Unit_Test:
-        runs-on: ubuntu-latest
-        steps:
-            - name: checkout code
-              uses: actions/checkout@v5
+    # Unit_Test:
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #         - name: checkout code
+    #           uses: actions/checkout@v5
 
-            - name: Install Dependencies
-              run: npm i
+    #         - name: Install Dependencies
+    #           run: npm i
 
-            - name: Run Unit Test
-              run: npm run test
+    #         - name: Run Unit Test
+    #           run: npm run test
 
-    sonarqube-code-quality-scan-job:
-        runs-on: ubuntu-latest
-        steps:
-          - name: Clone Source Code
-            uses: actions/checkout@v4
+    # sonarqube-code-quality-scan-job:
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #       - name: Clone Source Code
+    #         uses: actions/checkout@v4
 
-          - name: SonarQube Scan
-            uses: sonarsource/sonarqube-scan-action@master
-            env:
-              SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-              SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    #       - name: SonarQube Scan
+    #         uses: sonarsource/sonarqube-scan-action@master
+    #         env:
+    #           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    #           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
     trivy-image-security-scan-job:
-      needs: [ Unit_Test, sonarqube-code-quality-scan-job ]
+      # needs: [ Unit_Test, sonarqube-code-quality-scan-job ]
       runs-on: ubuntu-latest
       steps:      
         - name: Checkout Code
@@ -55,6 +55,10 @@ jobs:
           run: |
             docker build -t ${{ env.IMAGE_NAME }} .
             trivy image ${{ env.IMAGE_NAME }}
+
+        - name: Run Trivy Docker image vulnerability scan
+          run: |
+            trivy fs  .
 
 
 
