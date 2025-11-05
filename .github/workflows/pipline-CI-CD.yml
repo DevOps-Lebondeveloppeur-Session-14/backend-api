@@ -8,37 +8,44 @@ on:
 env:
   BUILD_NUMBER: ${{ github.run_number }}
   IMAGE_NAME: ${{ vars.DOCKERHUB_USERNAME }}/api-session14
-  PROJECT_PATH: /home/user/devops-script/backend/dev # Docker compose file
+  PROJECT_PATH: /home/user/devops-script/backend/dev
   DOCKER_SERVICE: backend-api
 
 jobs:
-    # Unit Test
-    # Unit_Test:
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #         - name: checkout code
-    #           uses: actions/checkout@v5
+    Unit_Test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Post a message in a channel
+              uses: slackapi/slack-github-action@v2.1.1
+              with:
+                webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+                webhook-type: incoming-webhook
+                payload: |
+                  text: "*GitHub Action Start pipline*: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
 
-    #         - name: Install Dependencies
-    #           run: npm i
+            - name: checkout code
+              uses: actions/checkout@v5
 
-    #         - name: Run Unit Test
-    #           run: npm run test
+            - name: Install Dependencies
+              run: npm i
 
-    # sonarqube-code-quality-scan-job:
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #       - name: Clone Source Code
-    #         uses: actions/checkout@v4
+            - name: Run Unit Test
+              run: npm run test
 
-    #       - name: SonarQube Scan
-    #         uses: sonarsource/sonarqube-scan-action@master
-    #         env:
-    #           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    #           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    sonarqube-code-quality-scan-job:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Clone Source Code
+            uses: actions/checkout@v4
+
+          - name: SonarQube Scan
+            uses: sonarsource/sonarqube-scan-action@master
+            env:
+              SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+              SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
     trivy-image-security-scan-job:
-      # needs: [ Unit_Test, sonarqube-code-quality-scan-job ]
+      needs: [ Unit_Test, sonarqube-code-quality-scan-job ]
       runs-on: ubuntu-latest
       steps:      
         - name: Checkout Code
@@ -70,26 +77,22 @@ jobs:
           run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
         - name: Run Snyk Vulnerability Scan
-          run: snyk monitor --all-projects --org=session14
+          run: snyk monitor --all-projects --org=session14 
          
 
     Build_And_Push:
         runs-on: ubuntu-latest
         needs: [ trivy-image-security-scan-job, snyk-code-security-scan-job ] 
         steps:
-            # - checkout / clone
             - name: checkout code
               uses: actions/checkout@v5
 
-            # - build image
             - name: Build Docker Image
               run: docker build -t ${{ env.IMAGE_NAME }} .
 
-            # - Tag docker Image
             - name: Tag Docker Image with version
               run: docker tag ${{ env.IMAGE_NAME }} ${{ env.IMAGE_NAME }}:v${{ env.BUILD_NUMBER }}
 
-            # - docker login
             - name: Login to Docker Hub
               uses: docker/login-action@v3
               with:
@@ -99,11 +102,9 @@ jobs:
             - name: List Images 
               run: docker images
 
-            # - docker push latest image
             - name: Push Docker image
               run: docker push ${{ env.IMAGE_NAME }}
 
-            # - docker push version image
             - name: push version image
               run: docker push ${{ env.IMAGE_NAME }}:v${{ env.BUILD_NUMBER }}
             
